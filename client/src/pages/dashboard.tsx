@@ -6,8 +6,13 @@ import BottomNavigation from "@/components/bottom-navigation";
 import AddTransactionModal from "@/components/add-transaction-modal";
 import AIAssistantModal from "@/components/ai-assistant-modal";
 import DataManagementModal from "@/components/data-management-modal";
+import BudgetCreationModal from "@/components/budget-creation-modal";
 import TransactionItem from "@/components/transaction-item";
 import BudgetProgress from "@/components/budget-progress";
+import FinancialHealthScore from "@/components/financial-health-score";
+import QuickStats from "@/components/quick-stats";
+import SpendingTrends from "@/components/spending-trends";
+import FloatingActionButton from "@/components/floating-action-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,6 +37,7 @@ export default function Dashboard() {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
+  const [showBudgetCreation, setShowBudgetCreation] = useState(false);
 
   const { data: transactions = [], isLoading: loadingTransactions } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
@@ -52,6 +58,18 @@ export default function Dashboard() {
 
   const recentTransactions = transactions.slice(0, 5);
   const isLoading = loadingTransactions || loadingBudgets || loadingAnalytics;
+
+  // Calculate financial health metrics
+  const calculateBudgetCompliance = () => {
+    if (budgets.length === 0) return 100;
+    const compliantBudgets = budgets.filter(b => parseFloat(b.spent) <= parseFloat(b.amount));
+    return (compliantBudgets.length / budgets.length) * 100;
+  };
+
+  const calculateSavingsRate = () => {
+    if (!analytics?.totalIncome || analytics.totalIncome === 0) return 0;
+    return (analytics.netSavings / analytics.totalIncome) * 100;
+  };
 
   if (isLoading) {
     return (
@@ -79,68 +97,38 @@ export default function Dashboard() {
       />
 
       <main className="pb-20">
-        {/* Financial Overview Cards */}
-        <section className="px-4 py-6 space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            {/* Balance Card */}
-            <Card className="card-elevated">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <CardTitle className="text-lg">Current Balance</CardTitle>
-                  <TrendingUp className="text-primary w-6 h-6" />
-                </div>
-                <div className="text-3xl font-bold text-primary mb-2">
-                  ${analytics?.netSavings?.toFixed(2) || "0.00"}
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <ArrowUp className="text-primary w-4 h-4 mr-1" />
-                  <span>Net savings this month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Income & Expenses Row */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="card-elevated">
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <CardTitle className="text-sm">Income</CardTitle>
-                    <ArrowDown className="text-primary w-4 h-4" />
-                  </div>
-                  <div className="text-xl font-bold text-primary">
-                    ${analytics?.totalIncome?.toFixed(2) || "0.00"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">This month</div>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elevated">
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <CardTitle className="text-sm">Expenses</CardTitle>
-                    <ArrowUp className="text-destructive w-4 h-4" />
-                  </div>
-                  <div className="text-xl font-bold text-destructive">
-                    ${analytics?.totalExpenses?.toFixed(2) || "0.00"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">This month</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        {/* Financial Health Score */}
+        <section className="px-4 py-6">
+          <FinancialHealthScore
+            totalIncome={analytics?.totalIncome || 0}
+            totalExpenses={analytics?.totalExpenses || 0}
+            budgetCompliance={calculateBudgetCompliance()}
+            savingsRate={calculateSavingsRate()}
+          />
         </section>
+
+        {/* Quick Stats */}
+        <section className="px-4 mb-6">
+          <QuickStats
+            totalIncome={analytics?.totalIncome || 0}
+            totalExpenses={analytics?.totalExpenses || 0}
+            netSavings={analytics?.netSavings || 0}
+            transactionCount={transactions.length}
+          />
+        </section>
+
+        {/* Spending Trends */}
+        {transactions.length > 0 && (
+          <section className="px-4 mb-6">
+            <SpendingTrends transactions={transactions} />
+          </section>
+        )}
 
         {/* Quick Actions */}
         <section className="px-4 mb-6">
           <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
             <Button
-              onClick={() => setShowAddTransaction(true)}
-              className="flex-shrink-0 bg-primary text-primary-foreground px-6 py-3 h-auto min-w-max button-touch"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Transaction
-            </Button>
-            <Button
+              onClick={() => setShowBudgetCreation(true)}
               variant="outline"
               className="flex-shrink-0 border-secondary text-secondary px-6 py-3 h-auto min-w-max button-touch"
             >
@@ -265,6 +253,9 @@ export default function Dashboard() {
 
       <BottomNavigation />
 
+      {/* Floating Action Button */}
+      <FloatingActionButton onClick={() => setShowAddTransaction(true)} />
+
       {/* Modals */}
       <AddTransactionModal
         isOpen={showAddTransaction}
@@ -277,6 +268,11 @@ export default function Dashboard() {
       <DataManagementModal
         isOpen={showDataManagement}
         onClose={() => setShowDataManagement(false)}
+      />
+      <BudgetCreationModal
+        isOpen={showBudgetCreation}
+        onClose={() => setShowBudgetCreation(false)}
+        existingBudgets={budgets}
       />
     </div>
   );
