@@ -242,6 +242,104 @@
     color: hsl(var(--primary));
   }
 
+  /* Button fixes for better visibility */
+  .btn-primary-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    color: white;
+    border: none;
+  }
+
+  .btn-primary-gradient:hover {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    opacity: 0.9;
+    color: white;
+  }
+
+  .btn-outline-primary {
+    border: 2px solid hsl(var(--primary));
+    color: hsl(var(--primary));
+    background: transparent;
+  }
+
+  .btn-outline-primary:hover {
+    background: hsl(var(--primary));
+    color: white;
+  }
+
+  .btn-outline-secondary {
+    border: 2px solid hsl(var(--secondary));
+    color: hsl(var(--secondary));
+    background: transparent;
+  }
+
+  .btn-outline-secondary:hover {
+    background: hsl(var(--secondary));
+    color: white;
+  }
+
+  .btn-outline-success {
+    border: 2px solid hsl(var(--success));
+    color: hsl(var(--success));
+    background: transparent;
+  }
+
+  .btn-outline-success:hover {
+    background: hsl(var(--success));
+    color: white;
+  }
+
+  .btn-outline-warning {
+    border: 2px solid hsl(var(--warning));
+    color: hsl(var(--warning));
+    background: transparent;
+  }
+
+  .btn-outline-warning:hover {
+    background: hsl(var(--warning));
+    color: white;
+  }
+
+  /* Additional button and text color fixes */
+  .text-success {
+    color: hsl(var(--success)) !important;
+  }
+
+  .text-destructive {
+    color: hsl(var(--destructive)) !important;
+  }
+
+  .text-warning {
+    color: hsl(var(--warning)) !important;
+  }
+
+  .text-secondary {
+    color: hsl(var(--secondary)) !important;
+  }
+
+  .text-primary {
+    color: hsl(var(--primary)) !important;
+  }
+
+  .border-success {
+    border-color: hsl(var(--success)) !important;
+  }
+
+  .border-destructive {
+    border-color: hsl(var(--destructive)) !important;
+  }
+
+  .border-warning {
+    border-color: hsl(var(--warning)) !important;
+  }
+
+  .border-secondary {
+    border-color: hsl(var(--secondary)) !important;
+  }
+
+  .border-primary {
+    border-color: hsl(var(--primary)) !important;
+  }
+
   .text-secondary {
     color: hsl(var(--secondary));
   }

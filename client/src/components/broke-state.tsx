@@ -66,22 +66,21 @@ export default function BrokeState({
             <div className="grid gap-3">
               <Button
                 onClick={onAddTransaction}
-                className="w-full bg-primary hover:bg-primary/90 h-12 text-left flex items-center justify-start space-x-3"
+                className="w-full btn-primary-gradient h-12 text-left flex items-center justify-start space-x-3 text-white"
               >
-                <div className="flex items-center justify-center w-8 h-8 bg-primary-foreground/20 rounded-full text-primary-foreground">
+                <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full text-white">
                   <span className="text-sm font-bold">1</span>
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold">Add Your First Transaction</div>
-                  <div className="text-xs opacity-80">Track income or expenses</div>
+                  <div className="font-semibold text-white">Add Your First Transaction</div>
+                  <div className="text-xs opacity-80 text-white">Track income or expenses</div>
                 </div>
-                <Plus className="w-5 h-5" />
+                <Plus className="w-5 h-5 text-white" />
               </Button>
 
               <Button
                 onClick={onCreateBudget}
-                variant="outline"
-                className="w-full border-secondary text-secondary hover:bg-secondary/10 h-12 text-left flex items-center justify-start space-x-3"
+                className="w-full btn-outline-secondary h-12 text-left flex items-center justify-start space-x-3"
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-secondary/20 rounded-full text-secondary">
                   <span className="text-sm font-bold">2</span>
@@ -95,8 +94,7 @@ export default function BrokeState({
 
               <Button
                 onClick={onAddAsset}
-                variant="outline"
-                className="w-full border-success text-success hover:bg-success/10 h-12 text-left flex items-center justify-start space-x-3"
+                className="w-full btn-outline-success h-12 text-left flex items-center justify-start space-x-3"
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-success/20 rounded-full text-success">
                   <span className="text-sm font-bold">3</span>
@@ -149,9 +147,9 @@ export default function BrokeState({
             <Button
               onClick={onAddTransaction}
               size="sm"
-              className="w-full bg-primary hover:bg-primary/90"
+              className="w-full btn-primary-gradient text-white"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2 text-white" />
               Add Transaction
             </Button>
           )}
@@ -159,8 +157,7 @@ export default function BrokeState({
             <Button
               onClick={onCreateBudget}
               size="sm"
-              variant="outline"
-              className="w-full border-secondary text-secondary"
+              className="w-full btn-outline-secondary"
             >
               <Target className="w-4 h-4 mr-2" />
               Create Budget
@@ -170,8 +167,7 @@ export default function BrokeState({
             <Button
               onClick={onAddAsset}
               size="sm"
-              variant="outline"
-              className="w-full border-success text-success"
+              className="w-full btn-outline-success"
             >
               <DollarSign className="w-4 h-4 mr-2" />
               Add Assets

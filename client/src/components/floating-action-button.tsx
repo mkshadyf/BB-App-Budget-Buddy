@@ -10,9 +10,9 @@ export default function FloatingActionButton({ onClick, className = "" }: Floati
   return (
     <Button
       onClick={onClick}
-      className={`fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 z-40 button-floating animate-float ${className}`}
+      className={`fixed bottom-24 right-6 w-14 h-14 rounded-full btn-primary-gradient text-white shadow-lg hover:shadow-xl transition-all duration-200 z-40 button-floating animate-float ${className}`}
     >
-      <Plus className="w-6 h-6" />
+      <Plus className="w-6 h-6 text-white" />
     </Button>
   );
 }

@@ -189,16 +189,14 @@ export default function Dashboard() {
           <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
             <Button
               onClick={() => setShowBudgetCreation(true)}
-              variant="outline"
-              className="flex-shrink-0 border-secondary text-secondary px-6 py-3 h-auto min-w-max button-touch"
+              className="flex-shrink-0 btn-outline-secondary px-6 py-3 h-auto min-w-max button-touch"
             >
               <Target className="w-4 h-4 mr-2" />
               Create Budget
             </Button>
             <Button
               onClick={() => setShowDataManagement(true)}
-              variant="outline"
-              className="flex-shrink-0 border-warning text-warning px-6 py-3 h-auto min-w-max button-touch"
+              className="flex-shrink-0 btn-outline-warning px-6 py-3 h-auto min-w-max button-touch"
             >
               <Download className="w-4 h-4 mr-2" />
               Export Data
