@@ -98,6 +98,15 @@ A beautiful, modern, and mobile-first personal finance management web applicatio
 - Smooth transitions and micro-interactions
 - Consistent spacing and typography
 
+## 🚀 Quick Deploy to GitHub Pages
+
+1. **Fork or clone this repository**
+2. **Push to your GitHub repository**
+3. **Enable GitHub Pages in repository settings**
+4. **Your app will be live at `https://yourusername.github.io/repository-name/`**
+
+*No server setup required! Pure static deployment.*
+
 ## 🛠️ Development Setup
 
 1. **Clone the repository**
@@ -111,26 +120,17 @@ A beautiful, modern, and mobile-first personal finance management web applicatio
    npm install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Add your OpenAI API key for AI features
-   ```
-
-4. **Set up database**
-   ```bash
-   npm run db:push
-   ```
-
-5. **Start development server**
+3. **Start development server**
    ```bash
    npm run dev
    ```
 
-6. **Open in browser**
+4. **Open in browser**
    ```
    http://localhost:5000
    ```
+
+*Optional: Add OpenAI API key to `.env` for AI features*
 
 ## 📱 Mobile Experience
 
