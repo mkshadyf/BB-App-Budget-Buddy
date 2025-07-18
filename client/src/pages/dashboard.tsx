@@ -7,12 +7,14 @@ import AddTransactionModal from "@/components/add-transaction-modal";
 import AIAssistantModal from "@/components/ai-assistant-modal";
 import DataManagementModal from "@/components/data-management-modal";
 import BudgetCreationModal from "@/components/budget-creation-modal";
+import AssetManagementModal from "@/components/asset-management-modal";
 import TransactionItem from "@/components/transaction-item";
 import BudgetProgress from "@/components/budget-progress";
 import FinancialHealthScore from "@/components/financial-health-score";
 import QuickStats from "@/components/quick-stats";
 import SpendingTrends from "@/components/spending-trends";
 import FloatingActionButton from "@/components/floating-action-button";
+import BrokeState from "@/components/broke-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,6 +40,7 @@ export default function Dashboard() {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showBudgetCreation, setShowBudgetCreation] = useState(false);
+  const [showAssetManagement, setShowAssetManagement] = useState(false);
 
   const { data: transactions = [], isLoading: loadingTransactions } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
@@ -45,6 +48,10 @@ export default function Dashboard() {
 
   const { data: budgets = [], isLoading: loadingBudgets } = useQuery<Budget[]>({
     queryKey: ["/api/budgets"],
+  });
+
+  const { data: assets = [], isLoading: loadingAssets } = useQuery<any[]>({
+    queryKey: ["/api/assets"],
   });
 
   const { data: analytics, isLoading: loadingAnalytics } = useQuery<AnalyticsData>({
@@ -57,7 +64,13 @@ export default function Dashboard() {
   });
 
   const recentTransactions = transactions.slice(0, 5);
-  const isLoading = loadingTransactions || loadingBudgets || loadingAnalytics;
+  const isLoading = loadingTransactions || loadingBudgets || loadingAnalytics || loadingAssets;
+  
+  // Check if user has any financial data
+  const hasTransactions = transactions.length > 0;
+  const hasBudgets = budgets.length > 0;
+  const hasAssets = assets.length > 0;
+  const hasAnyData = hasTransactions || hasBudgets || hasAssets;
 
   // Calculate financial health metrics
   const calculateBudgetCompliance = () => {
@@ -85,6 +98,53 @@ export default function Dashboard() {
           </section>
         </main>
         <BottomNavigation />
+      </div>
+    );
+  }
+
+  // Show broke state if user has no financial data
+  if (!hasAnyData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MobileHeader 
+          onAIClick={() => setShowAIAssistant(true)}
+          onSettingsClick={() => setShowDataManagement(true)}
+        />
+        <main className="pb-20">
+          <section className="px-4 py-6">
+            <BrokeState
+              onAddTransaction={() => setShowAddTransaction(true)}
+              onCreateBudget={() => setShowBudgetCreation(true)}
+              onAddAsset={() => setShowAssetManagement(true)}
+              hasTransactions={hasTransactions}
+              hasBudgets={hasBudgets}
+              hasAssets={hasAssets}
+            />
+          </section>
+        </main>
+        <BottomNavigation />
+        
+        {/* Modals */}
+        <AddTransactionModal
+          isOpen={showAddTransaction}
+          onClose={() => setShowAddTransaction(false)}
+        />
+        <BudgetCreationModal
+          isOpen={showBudgetCreation}
+          onClose={() => setShowBudgetCreation(false)}
+        />
+        <AssetManagementModal
+          isOpen={showAssetManagement}
+          onClose={() => setShowAssetManagement(false)}
+        />
+        <AIAssistantModal
+          isOpen={showAIAssistant}
+          onClose={() => setShowAIAssistant(false)}
+        />
+        <DataManagementModal
+          isOpen={showDataManagement}
+          onClose={() => setShowDataManagement(false)}
+        />
       </div>
     );
   }
@@ -273,6 +333,10 @@ export default function Dashboard() {
         isOpen={showBudgetCreation}
         onClose={() => setShowBudgetCreation(false)}
         existingBudgets={budgets}
+      />
+      <AssetManagementModal
+        isOpen={showAssetManagement}
+        onClose={() => setShowAssetManagement(false)}
       />
     </div>
   );

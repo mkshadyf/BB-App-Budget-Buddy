@@ -1,4 +1,4 @@
-import { transactions, budgets, settings, type Transaction, type InsertTransaction, type Budget, type InsertBudget, type Settings, type InsertSettings } from "@shared/schema";
+import { transactions, budgets, settings, assets, type Transaction, type InsertTransaction, type Budget, type InsertBudget, type Settings, type InsertSettings, type Asset, type InsertAsset } from "@shared/schema";
 
 export interface IStorage {
   // Transactions
@@ -23,21 +23,31 @@ export interface IStorage {
   getSettings(): Promise<Settings>;
   updateSettings(settings: Partial<InsertSettings>): Promise<Settings>;
 
+  // Assets
+  getAssets(): Promise<Asset[]>;
+  getAsset(id: number): Promise<Asset | undefined>;
+  createAsset(asset: InsertAsset): Promise<Asset>;
+  updateAsset(id: number, asset: Partial<InsertAsset>): Promise<Asset | undefined>;
+  deleteAsset(id: number): Promise<boolean>;
+
   // Utility
   clearAllData(): Promise<void>;
-  exportData(): Promise<{ transactions: Transaction[], budgets: Budget[], settings: Settings }>;
+  exportData(): Promise<{ transactions: Transaction[], budgets: Budget[], settings: Settings, assets: Asset[] }>;
 }
 
 export class MemStorage implements IStorage {
   private transactions: Map<number, Transaction>;
   private budgets: Map<number, Budget>;
+  private assets: Map<number, Asset>;
   private settings: Settings;
   private currentTransactionId: number;
   private currentBudgetId: number;
+  private currentAssetId: number;
 
   constructor() {
     this.transactions = new Map();
     this.budgets = new Map();
+    this.assets = new Map();
     this.settings = {
       id: 1,
       currency: "USD",
@@ -46,6 +56,7 @@ export class MemStorage implements IStorage {
     };
     this.currentTransactionId = 1;
     this.currentBudgetId = 1;
+    this.currentAssetId = 1;
   }
 
   // Transactions
@@ -167,10 +178,49 @@ export class MemStorage implements IStorage {
     return this.settings;
   }
 
+  // Assets
+  async getAssets(): Promise<Asset[]> {
+    return Array.from(this.assets.values()).sort((a, b) => 
+      new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+    );
+  }
+
+  async getAsset(id: number): Promise<Asset | undefined> {
+    return this.assets.get(id);
+  }
+
+  async createAsset(insertAsset: InsertAsset): Promise<Asset> {
+    const id = this.currentAssetId++;
+    const asset: Asset = {
+      ...insertAsset,
+      id,
+      createdAt: new Date(),
+      description: insertAsset.description || null,
+      currency: insertAsset.currency || "USD",
+      purchaseDate: insertAsset.purchaseDate || null,
+    };
+    this.assets.set(id, asset);
+    return asset;
+  }
+
+  async updateAsset(id: number, updateAsset: Partial<InsertAsset>): Promise<Asset | undefined> {
+    const existing = this.assets.get(id);
+    if (!existing) return undefined;
+    
+    const updated: Asset = { ...existing, ...updateAsset };
+    this.assets.set(id, updated);
+    return updated;
+  }
+
+  async deleteAsset(id: number): Promise<boolean> {
+    return this.assets.delete(id);
+  }
+
   // Utility
   async clearAllData(): Promise<void> {
     this.transactions.clear();
     this.budgets.clear();
+    this.assets.clear();
     this.settings = {
       id: 1,
       currency: "USD",
@@ -179,13 +229,15 @@ export class MemStorage implements IStorage {
     };
     this.currentTransactionId = 1;
     this.currentBudgetId = 1;
+    this.currentAssetId = 1;
   }
 
-  async exportData(): Promise<{ transactions: Transaction[], budgets: Budget[], settings: Settings }> {
+  async exportData(): Promise<{ transactions: Transaction[], budgets: Budget[], settings: Settings, assets: Asset[] }> {
     return {
       transactions: await this.getTransactions(),
       budgets: await this.getBudgets(),
       settings: await this.getSettings(),
+      assets: await this.getAssets(),
     };
   }
 }

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { aiAssistant } from "./services/ai-assistant";
-import { insertTransactionSchema, insertBudgetSchema, insertSettingsSchema } from "@shared/schema";
+import { insertTransactionSchema, insertBudgetSchema, insertSettingsSchema, insertAssetSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -155,6 +155,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Failed to update settings" });
       }
+    }
+  });
+
+  // Assets
+  app.get("/api/assets", async (req, res) => {
+    try {
+      const assets = await storage.getAssets();
+      res.json(assets);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch assets" });
+    }
+  });
+
+  app.post("/api/assets", async (req, res) => {
+    try {
+      const validatedData = insertAssetSchema.parse(req.body);
+      const asset = await storage.createAsset(validatedData);
+      res.status(201).json(asset);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid asset data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create asset" });
+      }
+    }
+  });
+
+  app.put("/api/assets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertAssetSchema.partial().parse(req.body);
+      const asset = await storage.updateAsset(id, validatedData);
+      
+      if (!asset) {
+        return res.status(404).json({ message: "Asset not found" });
+      }
+      
+      res.json(asset);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid asset data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update asset" });
+      }
+    }
+  });
+
+  app.delete("/api/assets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteAsset(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Asset not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete asset" });
     }
   });
 

@@ -18,7 +18,7 @@ import type { InsertBudget, Budget } from "@shared/schema";
 interface BudgetCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  existingBudgets: Budget[];
+  existingBudgets?: Budget[];
 }
 
 export default function BudgetCreationModal({ isOpen, onClose, existingBudgets }: BudgetCreationModalProps) {
@@ -65,7 +65,7 @@ export default function BudgetCreationModal({ isOpen, onClose, existingBudgets }
   };
 
   const availableCategories = categories.filter(
-    category => category !== "income" && !existingBudgets.some(budget => budget.category === category)
+    category => category !== "income" && !(existingBudgets || []).some(budget => budget.category === category)
   );
 
   // Budget recommendations based on category
