@@ -20,7 +20,7 @@ export default function MobileHeader({
             <Wallet className="text-white w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gradient-primary">BudgetBuddy</h1>
+            <h1 className="text-xl font-bold text-foreground">BudgetBuddy</h1>
             <p className="text-xs text-muted-foreground">Your Finance Assistant</p>
           </div>
         </div>
