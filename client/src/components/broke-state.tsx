@@ -66,10 +66,14 @@ export default function BrokeState({
             <div className="grid gap-3">
               <Button
                 onClick={onAddTransaction}
-                className="w-full btn-primary-gradient h-12 text-left flex items-center justify-start space-x-3 text-white"
+                className="w-full h-12 text-left flex items-center justify-start space-x-3 text-white border-0"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(262, 90%, 58%) 0%, hsl(197, 100%, 48%) 100%)',
+                  color: 'white'
+                }}
               >
-                <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full text-white">
-                  <span className="text-sm font-bold">1</span>
+                <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full">
+                  <span className="text-sm font-bold text-white">1</span>
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-white">Add Your First Transaction</div>
@@ -147,7 +151,11 @@ export default function BrokeState({
             <Button
               onClick={onAddTransaction}
               size="sm"
-              className="w-full btn-primary-gradient text-white"
+              className="w-full text-white border-0"
+              style={{
+                background: 'linear-gradient(135deg, hsl(262, 90%, 58%) 0%, hsl(197, 100%, 48%) 100%)',
+                color: 'white'
+              }}
             >
               <Plus className="w-4 h-4 mr-2 text-white" />
               Add Transaction
