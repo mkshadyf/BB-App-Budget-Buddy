@@ -1,0 +1,283 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Plus, Target, Download, TrendingUp, ArrowUp, ArrowDown, Bot, Lightbulb, TrendingDown } from "lucide-react";
+import MobileHeader from "@/components/mobile-header";
+import BottomNavigation from "@/components/bottom-navigation";
+import AddTransactionModal from "@/components/add-transaction-modal";
+import AIAssistantModal from "@/components/ai-assistant-modal";
+import DataManagementModal from "@/components/data-management-modal";
+import TransactionItem from "@/components/transaction-item";
+import BudgetProgress from "@/components/budget-progress";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Transaction, Budget } from "@shared/schema";
+
+interface AnalyticsData {
+  totalIncome: number;
+  totalExpenses: number;
+  netSavings: number;
+  categorySpending: Record<string, number>;
+  budgetStatus: Array<Budget & { percentageUsed: number; remaining: number }>;
+}
+
+interface AIInsight {
+  type: "alert" | "tip" | "achievement" | "warning";
+  title: string;
+  message: string;
+  priority: "high" | "medium" | "low";
+}
+
+export default function Dashboard() {
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showDataManagement, setShowDataManagement] = useState(false);
+
+  const { data: transactions = [], isLoading: loadingTransactions } = useQuery<Transaction[]>({
+    queryKey: ["/api/transactions"],
+  });
+
+  const { data: budgets = [], isLoading: loadingBudgets } = useQuery<Budget[]>({
+    queryKey: ["/api/budgets"],
+  });
+
+  const { data: analytics, isLoading: loadingAnalytics } = useQuery<AnalyticsData>({
+    queryKey: ["/api/analytics"],
+  });
+
+  const { data: insights = [] } = useQuery<AIInsight[]>({
+    queryKey: ["/api/ai/insights"],
+    refetchInterval: 300000, // Refetch every 5 minutes
+  });
+
+  const recentTransactions = transactions.slice(0, 5);
+  const isLoading = loadingTransactions || loadingBudgets || loadingAnalytics;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MobileHeader />
+        <main className="pb-20">
+          <section className="px-4 py-6 space-y-4">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-24 w-full rounded-xl" />
+              <Skeleton className="h-24 w-full rounded-xl" />
+            </div>
+          </section>
+        </main>
+        <BottomNavigation />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <MobileHeader
+        onAIClick={() => setShowAIAssistant(true)}
+        onSettingsClick={() => setShowDataManagement(true)}
+      />
+
+      <main className="pb-20">
+        {/* Financial Overview Cards */}
+        <section className="px-4 py-6 space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            {/* Balance Card */}
+            <Card className="card-elevated">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg">Current Balance</CardTitle>
+                  <TrendingUp className="text-primary w-6 h-6" />
+                </div>
+                <div className="text-3xl font-bold text-primary mb-2">
+                  ${analytics?.netSavings?.toFixed(2) || "0.00"}
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <ArrowUp className="text-primary w-4 h-4 mr-1" />
+                  <span>Net savings this month</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Income & Expenses Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="card-elevated">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <CardTitle className="text-sm">Income</CardTitle>
+                    <ArrowDown className="text-primary w-4 h-4" />
+                  </div>
+                  <div className="text-xl font-bold text-primary">
+                    ${analytics?.totalIncome?.toFixed(2) || "0.00"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">This month</div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-elevated">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <CardTitle className="text-sm">Expenses</CardTitle>
+                    <ArrowUp className="text-destructive w-4 h-4" />
+                  </div>
+                  <div className="text-xl font-bold text-destructive">
+                    ${analytics?.totalExpenses?.toFixed(2) || "0.00"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">This month</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Actions */}
+        <section className="px-4 mb-6">
+          <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+            <Button
+              onClick={() => setShowAddTransaction(true)}
+              className="flex-shrink-0 bg-primary text-primary-foreground px-6 py-3 h-auto min-w-max button-touch"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Transaction
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-shrink-0 border-secondary text-secondary px-6 py-3 h-auto min-w-max button-touch"
+            >
+              <Target className="w-4 h-4 mr-2" />
+              Create Budget
+            </Button>
+            <Button
+              onClick={() => setShowDataManagement(true)}
+              variant="outline"
+              className="flex-shrink-0 border-warning text-warning px-6 py-3 h-auto min-w-max button-touch"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Data
+            </Button>
+          </div>
+        </section>
+
+        {/* Budget Progress */}
+        {budgets.length > 0 && (
+          <section className="px-4 mb-6">
+            <Card className="card-elevated">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Budget Overview</CardTitle>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {budgets.map((budget) => (
+                  <BudgetProgress key={budget.id} budget={budget} />
+                ))}
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {/* Recent Transactions */}
+        {recentTransactions.length > 0 && (
+          <section className="px-4 mb-6">
+            <Card className="card-elevated">
+              <CardHeader className="pb-4 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Recent Transactions</CardTitle>
+                  <Button variant="ghost" size="sm" className="text-secondary">
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border">
+                  {recentTransactions.map((transaction) => (
+                    <TransactionItem key={transaction.id} transaction={transaction} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {/* AI Assistant Insights */}
+        {insights.length > 0 && (
+          <section className="px-4 mb-6">
+            <Card className="card-elevated gradient-primary text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <Bot className="text-white w-4 h-4" />
+                  </div>
+                  <CardTitle className="text-lg text-white">AI Assistant Insights</CardTitle>
+                </div>
+                <div className="space-y-3">
+                  {insights.slice(0, 2).map((insight, index) => (
+                    <div key={index} className="bg-white bg-opacity-10 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <Lightbulb className="text-warning w-4 h-4 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium mb-1">{insight.title}</p>
+                          <p className="text-xs text-white/80">{insight.message}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => setShowAIAssistant(true)}
+                  variant="secondary"
+                  className="mt-4 w-full button-touch"
+                >
+                  Chat with AI Assistant
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {/* Empty State */}
+        {transactions.length === 0 && (
+          <section className="px-4 mb-6">
+            <Card className="card-elevated">
+              <CardContent className="text-center py-12">
+                <TrendingDown className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  No transactions yet
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Start tracking your finances by adding your first transaction.
+                </p>
+                <Button
+                  onClick={() => setShowAddTransaction(true)}
+                  className="bg-primary text-primary-foreground button-touch"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Transaction
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+      </main>
+
+      <BottomNavigation />
+
+      {/* Modals */}
+      <AddTransactionModal
+        isOpen={showAddTransaction}
+        onClose={() => setShowAddTransaction(false)}
+      />
+      <AIAssistantModal
+        isOpen={showAIAssistant}
+        onClose={() => setShowAIAssistant(false)}
+      />
+      <DataManagementModal
+        isOpen={showDataManagement}
+        onClose={() => setShowDataManagement(false)}
+      />
+    </div>
+  );
+}
